@@ -83,7 +83,7 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #'   and `control.bam` (if provided) in the `sample_mmr` and `control_mmr` elements.
 #'
 #' @export
-#' 
+#'
 #' @importFrom Rsamtools BamFile idxstatsBam
 #' @importFrom rtracklayer import
 #' @importFrom GenomicRanges granges
@@ -166,7 +166,7 @@ add_region_signal <- function(sample.bam,
 #' optionally subtracting control signal and setting negative values to zero.
 #'
 #' @param regions A GRanges object containing the `sample_signal` and optionally `control_signal` in metadata columns.
-#' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero. 
+#' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero.
 #'   Default is `TRUE`.
 #'
 #' @return A GRanges object with an added `rank_signal` column containing the
@@ -174,7 +174,7 @@ add_region_signal <- function(sample.bam,
 #'   Adds a `region_rank` column as well.
 #'
 #' @export
-#' 
+#'
 #' @importFrom GenomicRanges sort
 #'
 #' @author Jared Andrews, Jacqueline Myers
@@ -200,7 +200,18 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
     }
 
     regions$rank_signal <- rank_sig
-    regions <- sort(regions, decreasing = TRUE, by = ~ rank_signal)
+    regions <- sort(regions, decreasing = TRUE, by = ~rank_signal)
     regions$region_rank <- seq_len(NROW(regions))
     regions
+}
+
+
+classify_enhancers <- function(regions,
+                               adjustment = NULL,
+                               drop.zeros = FALSE,
+                               remove.top = 0,
+                               thresh.method = "ROSE",
+                               first.threshold = 0.5,
+                               cumal.prop.threshold = 0.5) {
+
 }
