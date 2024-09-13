@@ -63,26 +63,27 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #' of ROSE as closely as possible.
 #'
 #' To detail the process:
-#'  - The total number of reads in the signal BAM file is calculated.
-#'  - The signal reads are extended downstream by a specified number of bases (200 bp by default).
-#'  - The coverage for each basepair in the regions of interest are calculated.
-#'      ROSE does this manually by calling samtools for each region, which is slow.
-#'  - Basepairs with coverage below a specified threshold (`floor`, 1 by default) are removed.
-#'  - For each region, the coverage is summed and divided by the total number of reads to get the signal.
+#' - The total number of reads in the signal BAM file is calculated.
+#' - The signal reads are extended downstream by a specified number of bases (200 bp by default).
+#' - The coverage for each basepair in the regions of interest are calculated.
+#'     ROSE does this manually by calling samtools for each region, which is slow.
+#' - Basepairs with coverage below a specified threshold (`floor`, 1 by default) are removed.
+#' - For each region, the coverage is summed and divided by the total number of reads to get the signal.
 #'
 #' @param sample.bam Character or BamFile object representing the signal BAM file.
 #' @param regions Character or GRanges object representing genomic regions of interest.
 #' @param control.bam Character or BamFile object representing the control BAM file.
 #'   Default is `NULL`.
 #' @param floor Numeric value for the minimum coverage threshold to count for region.
-#'   Default is 0.
+#'   Default is 1.
 #' @param read.ext Numeric value for extending reads downstream. Default is 200.
 #'
 #' @return A GRanges object for `regions` with additional columns for sample and control (if provided) signal.
 #'   The metadata of the object will also contain the scaling factor for library size normalization for the `sample.bam`
-#'   and `control.bam` (if provided).
+#'   and `control.bam` (if provided) in the `sample_mmr` and `control_mmr` elements.
 #'
 #' @export
+#' 
 #' @importFrom Rsamtools BamFile idxstatsBam
 #' @importFrom rtracklayer import
 #' @importFrom GenomicRanges granges
@@ -102,58 +103,98 @@ get_region_signal <- function(sample.bam,
                               floor = 1,
                               read.ext = 200) {
     if (is.character(sample.bam)) {
-        samp.bam <- BamFile(sample.bam)
+        samp_bam <- BamFile(sample.bam)
     }
 
     if (is.character(control.bam)) {
-        ctrl.bam <- BamFile(control.bam)
+        ctrl_bam <- BamFile(control.bam)
     }
 
     if (is.character(regions)) {
         regions <- readBed(file = regions)
     }
 
-    samp.stat <- idxstatsBam(samp.bam)
-    samp.total <- sum(samp.stat$mapped)
-    samp.mmr <- samp.total / 1000000
+    samp_stat <- idxstatsBam(samp_bam)
+    samp_total <- sum(samp_stat$mapped)
+    samp_mmr <- samp_total / 1000000
 
-    samp.reads <- granges(import(samp.mmr))
+    samp_reads <- granges(import(samp_mmr))
 
     if (read.ext > 0) {
-        samp.reads <- extend_reads(samp.reads, downstream = read.ext)
+        samp_reads <- extend_reads(samp_reads, downstream = read.ext)
     }
 
-    samp.cov <- do_bedtools_coverage(a = regions, b = samp.reads, d = TRUE)
+    samp_cov <- do_bedtools_coverage(a = regions, b = samp_reads, d = TRUE)
 
-    samp.cov$coverage <- samp.cov$coverage[samp.cov$coverage > floor]
-    samp.cov$coverage <- sum(samp.cov$coverage)
+    samp_cov$coverage <- samp_cov$coverage[samp_cov$coverage > floor]
+    samp_cov$coverage <- sum(samp_cov$coverage)
 
-    samp.cov$signal <- samp.cov$coverage / samp.mmr
+    samp_cov$signal <- samp_cov$coverage / samp_mmr
 
-    regions$sample_signal <- samp.cov$signal
-    metadata(regions)$sample_mmr <- samp.mmr
+    regions$sample_signal <- samp_cov$signal
+    metadata(regions)$sample_mmr <- samp_mmr
 
-    ctrl.sig <- NULL
+    ctrl_sig <- NULL
     if (!is.null(control.bam)) {
-        ctrl.stat <- idxstatsBam(ctrl.bam)
-        ctrl.total <- sum(ctrl.stat$mapped)
-        ctrl.mmr <- ctrl.total / 1000000
+        ctrl_stat <- idxstatsBam(ctrl_bam)
+        ctrl_total <- sum(ctrl_stat$mapped)
+        ctrl_mmr <- ctrl_total / 1000000
 
-        ctrl.reads <- granges(import(ctrl.bam))
+        ctrl_reads <- granges(import(ctrl_bam))
         if (read.ext > 0) {
-            ctrl.reads <- extend_reads(ctrl.reads, downstream = read.ext)
+            ctrl_reads <- extend_reads(ctrl_reads, downstream = read.ext)
         }
 
-        ctrl.cov <- do_bedtools_coverage(a = regions, b = ctrl.reads, d = TRUE)
+        ctrl_cov <- do_bedtools_coverage(a = regions, b = ctrl_reads, d = TRUE)
 
-        ctrl.cov$coverage <- ctrl.cov$coverage[ctrl.cov$coverage > floor]
-        ctrl.cov$coverage <- sum(ctrl.cov$coverage)
+        ctrl_cov$coverage <- ctrl_cov$coverage[ctrl_cov$coverage > floor]
+        ctrl_cov$coverage <- sum(ctrl_cov$coverage)
 
-        ctrl.cov$signal <- ctrl.cov$coverage / ctrl.mmr
+        ctrl_cov$signal <- ctrl_cov$coverage / ctrl_mmr
 
-        regions$control_signal <- ctrl.cov$signal
-        metadata(regions)$control_mmr <- ctrl.mmr
+        regions$control_signal <- ctrl_cov$signal
+        metadata(regions)$control_mmr <- ctrl_mmr
     }
 
+    regions
+}
+
+
+#' Get ranking signal for regions
+#'
+#' Computes the ranking signal for the given genomic regions by 
+#' optionally subtracting control signal and setting negative values to zero.
+#'
+#' @param regions A GRanges object containing the `sample_signal` and optionally `control_signal` in metadata columns.
+#' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero. 
+#'   Default is `TRUE`.
+#'
+#' @return A GRanges object with an added `rank_signal` column containing the computed ranking signal.
+#' 
+#' @export 
+#' 
+#' @author Jared Andrews, Jacqueline Myers
+#'
+#' @examples
+#' regions <- GRanges(seqnames = "chr1", ranges = IRanges(1000, 2000))
+#' regions$sample_signal <- rnorm(length(regions))
+#' regions$control_signal <- rnorm(length(regions))
+#' ranked_regions <- get_ranking_signal(regions)
+get_ranking_signal <- function(regions, negative.to.zero = TRUE) {
+    if (is.null(regions$sample_signal)) {
+        stop("regions must contain signal, run 'get_region_signal'")
+    }
+
+    rank_sig <- regions$sample_signal
+
+    if (!is.null(regions$control_signal)) {
+        rank_sig <- rank_sig - regions$control_signal
+    }
+
+    if (negative.to.zero) {
+        rank_sig[rank_sig < 0] <- 0
+    }
+
+    regions$rank_signal <- rank_sig
     regions
 }

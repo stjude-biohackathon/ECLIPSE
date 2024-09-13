@@ -21,14 +21,14 @@ get_region_signal(
 Default is \code{NULL}.}
 
 \item{floor}{Numeric value for the minimum coverage threshold to count for region.
-Default is 0.}
+Default is 1.}
 
 \item{read.ext}{Numeric value for extending reads downstream. Default is 200.}
 }
 \value{
 A GRanges object for \code{regions} with additional columns for sample and control (if provided) signal.
 The metadata of the object will also contain the scaling factor for library size normalization for the \code{sample.bam}
-and \code{control.bam} (if provided).
+and \code{control.bam} (if provided) in the \code{sample_mmr} and \code{control_mmr} elements.
 }
 \description{
 Calculates the libary size-normalized coverage of reads within specified regions from a
