@@ -13,7 +13,8 @@ get_ranking_signal(regions, negative.to.zero = TRUE)
 Default is \code{TRUE}.}
 }
 \value{
-A GRanges object with an added \code{rank_signal} column containing the computed ranking signal.
+A GRanges object with an added \code{rank_signal} column containing the
+computed \code{rank_signal} column in its metadata columns, sorted by said column.
 }
 \description{
 Computes the ranking signal for the given genomic regions by

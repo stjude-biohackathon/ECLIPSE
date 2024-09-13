@@ -162,17 +162,18 @@ get_region_signal <- function(sample.bam,
 
 #' Get ranking signal for regions
 #'
-#' Computes the ranking signal for the given genomic regions by 
+#' Computes the ranking signal for the given genomic regions by
 #' optionally subtracting control signal and setting negative values to zero.
 #'
 #' @param regions A GRanges object containing the `sample_signal` and optionally `control_signal` in metadata columns.
 #' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero. 
 #'   Default is `TRUE`.
 #'
-#' @return A GRanges object with an added `rank_signal` column containing the computed ranking signal.
-#' 
-#' @export 
-#' 
+#' @return A GRanges object with an added `rank_signal` column containing the 
+#'   computed `rank_signal` column in its metadata columns, sorted by said column.
+#'
+#' @export
+#'
 #' @author Jared Andrews, Jacqueline Myers
 #'
 #' @examples
@@ -196,5 +197,6 @@ get_ranking_signal <- function(regions, negative.to.zero = TRUE) {
     }
 
     regions$rank_signal <- rank_sig
+    regions <- sort(regions, decreasing = TRUE, by = ~ rank_signal)
     regions
 }
