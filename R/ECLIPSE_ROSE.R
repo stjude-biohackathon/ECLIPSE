@@ -53,7 +53,7 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 }
 
 
-#' Get region signal from BAM files
+#' Get region signal from BAM files and add to GRanges
 #'
 #' Calculates the libary size-normalized coverage of reads within specified regions from a
 #' signal BAM file with optional subtraction of a control BAM file.
@@ -96,8 +96,8 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #' @examples
 #' sample.bam <- "path/to/sample.bam"
 #' regions <- GRanges(seqnames = "chr1", ranges = IRanges(1000, 2000))
-#' regions <- get_region_signal(sample.bam, regions, floor = 10)
-get_region_signal <- function(sample.bam,
+#' regions <- add_region_signal(sample.bam, regions, floor = 10)
+add_region_signal <- function(sample.bam,
                               regions,
                               control.bam = NULL,
                               floor = 1,
@@ -160,7 +160,7 @@ get_region_signal <- function(sample.bam,
 }
 
 
-#' Get ranking signal for regions
+#' Get ranking signal for regions and add to GRanges object
 #'
 #' Computes the ranking signal for the given genomic regions by
 #' optionally subtracting control signal and setting negative values to zero.
@@ -169,11 +169,13 @@ get_region_signal <- function(sample.bam,
 #' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero. 
 #'   Default is `TRUE`.
 #'
-#' @return A GRanges object with an added `rank_signal` column containing the 
+#' @return A GRanges object with an added `rank_signal` column containing the
 #'   computed `rank_signal` column in its metadata columns, sorted by said column.
 #'   Adds a `region_rank` column as well.
 #'
 #' @export
+#' 
+#' @importFrom GenomicRanges sort
 #'
 #' @author Jared Andrews, Jacqueline Myers
 #'
@@ -182,7 +184,7 @@ get_region_signal <- function(sample.bam,
 #' regions$sample_signal <- rnorm(length(regions))
 #' regions$control_signal <- rnorm(length(regions))
 #' ranked_regions <- get_ranking_signal(regions)
-get_ranking_signal <- function(regions, negative.to.zero = TRUE) {
+add_signal_rank <- function(regions, negative.to.zero = TRUE) {
     if (is.null(regions$sample_signal)) {
         stop("regions must contain signal, run 'get_region_signal'")
     }
