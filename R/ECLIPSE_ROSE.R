@@ -55,17 +55,17 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 
 #' Get region signal from BAM files
 #'
-#' Calculates the libary size-normalized coverage of reads within specified regions from a 
+#' Calculates the libary size-normalized coverage of reads within specified regions from a
 #' signal BAM file with optional subtraction of a control BAM file.
 #' Allows read extension and additional processing like setting negative coverage to zero.
-#' 
+#'
 #' @details The defaults of this function are set to so as to match the functionality
 #' of ROSE as closely as possible.
-#' 
+#'
 #' To detail the process:
 #'  - The total number of reads in the signal BAM file is calculated.
 #'  - The signal reads are extended downstream by a specified number of bases (200 bp by default).
-#'  - The coverage for each basepair in the regions of interest are calculated. 
+#'  - The coverage for each basepair in the regions of interest are calculated.
 #'      ROSE does this manually by calling samtools for each region, which is slow.
 #'  - Basepairs with coverage below a specified threshold (`floor`, 1 by default) are removed.
 #'  - For each region, the coverage is summed and divided by the total number of reads to get the signal.
@@ -79,7 +79,7 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #' @param read.ext Numeric value for extending reads downstream. Default is 200.
 #'
 #' @return A GRanges object for `regions` with additional columns for sample and control (if provided) signal.
-#'   The metadata of the object will also contain the scaling factor for library size normalization for the `sample.bam` 
+#'   The metadata of the object will also contain the scaling factor for library size normalization for the `sample.bam`
 #'   and `control.bam` (if provided).
 #'
 #' @export
@@ -97,10 +97,10 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #' regions <- GRanges(seqnames = "chr1", ranges = IRanges(1000, 2000))
 #' regions <- get_region_signal(sample.bam, regions, floor = 10)
 get_region_signal <- function(sample.bam,
-                                regions,
-                                control.bam = NULL,
-                                floor = 1,
-                                read.ext = 200) {
+                              regions,
+                              control.bam = NULL,
+                              floor = 1,
+                              read.ext = 200) {
     if (is.character(sample.bam)) {
         samp.bam <- BamFile(sample.bam)
     }
