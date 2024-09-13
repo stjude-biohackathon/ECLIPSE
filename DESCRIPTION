@@ -1,10 +1,23 @@
 Package: ECLIPSE
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: Enhancer Calling and Linking with Integrated Profiling and Structure Evaluation
+Version: 0.99.0.9000
+Authors@R: c(
+    person("Jared", "Andrews", , "jared.andrews07@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0780-6248")),
+    person("Alyssa", "Obermayer", role = "aut"),
+    person("Kelly", "McCastlain", role = "aut"),
+    person("Jacqueline", "Myers", role = "aut"),
+    person("Nicolas", "Peterson", role = "aut"),
+    person("Avery", "Bradley", role = "aut"),
+    person("Young Lab - Whitehead Institute for Biomedical Research", role = "cph",
+    comment = "Author of included original ROSE thresholding code."))
+Description: ECLIPSE provides a performant implementation of the rank ordering of super enhancers (ROSE) method for identifying super enhancers.
+It provides optional options to increase the robustness of ROSE via signal transformations prior to ranking and additional thresholding options.
+It also increases flexibility by exposing parameters hidden in the original implementation.
+ECLIPSE additionally contains novel functionality to identify sub-structural changes within enhancer regions between groups via sliding window and binning approaches.
+It also contains visualization functions to generate high-quality plots of specific loci alongside arbitrary user-provided data.
+URL: https://github.com/stjude-biohackathon/ECLIPSE
+BugReports: https://github.com/stjude-biohackathon/ECLIPSE/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
