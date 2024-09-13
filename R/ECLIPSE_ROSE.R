@@ -171,6 +171,7 @@ get_region_signal <- function(sample.bam,
 #'
 #' @return A GRanges object with an added `rank_signal` column containing the 
 #'   computed `rank_signal` column in its metadata columns, sorted by said column.
+#'   Adds a `region_rank` column as well.
 #'
 #' @export
 #'
@@ -198,5 +199,6 @@ get_ranking_signal <- function(regions, negative.to.zero = TRUE) {
 
     regions$rank_signal <- rank_sig
     regions <- sort(regions, decreasing = TRUE, by = ~ rank_signal)
+    regions$region_rank <- seq_len(NROW(regions))
     regions
 }
