@@ -1,6 +1,11 @@
-# ECLIPSE
+<p align="center" width="100%">
+    <img src="inst/logo/ECLIPSE_Hex.png" alt="ECLIPSE" height="200">
+</p>
 
-**E**nhancer **C**alling and **L**inking with **I**ntegrated **P**rofiling and **S**tructure **E**valuation provides a performant implementation of the rank ordering of super enhancers (ROSE) method for identifying super enhancers.
+---
+
+ECLIPSE (**E**nhancer **C**alling and **L**inking with **I**ntegrated **P**rofiling and **S**tructure **E**valuation) provides a performant 
+implementation of the [rank ordering of super enhancers (ROSE)](http://younglab.wi.mit.edu/super_enhancer_code.html) method for identifying super enhancers.
 It provides options to increase the robustness of ROSE via signal transformations prior to thresholding and additional thresholding approaches.
 It also increases flexibility by exposing parameters hidden in the original implementation.
 ECLIPSE additionally contains novel functionality to identify sub-structural changes within enhancer regions between groups via sliding window and binning approaches.
@@ -15,6 +20,8 @@ This project was conceptualized for and initially developed during the [St. Jude
 - Avery Bradley
 
 It even snagged a prize for "Most Technically Impressive" project.
+
+**This package is under active development and may break at any time.**
 
 ## Installation
 
