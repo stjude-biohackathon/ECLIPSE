@@ -167,7 +167,7 @@ add_region_signal <- function(sample.bam,
 #'
 #' @param regions A GRanges object containing the `sample_signal` and optionally `control_signal` in metadata columns.
 #' @param negative.to.zero Logical indicating whether to set negative values in the ranking signal to zero.
-#'   Default is `TRUE`.
+#'   Default is `TRUE`, as that is what ROSE does.
 #'
 #' @return A GRanges object with an added `rank_signal` column containing the
 #'   computed `rank_signal` column in its metadata columns, sorted by said column.

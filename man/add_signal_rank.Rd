@@ -10,7 +10,7 @@ add_signal_rank(regions, negative.to.zero = TRUE)
 \item{regions}{A GRanges object containing the \code{sample_signal} and optionally \code{control_signal} in metadata columns.}
 
 \item{negative.to.zero}{Logical indicating whether to set negative values in the ranking signal to zero.
-Default is \code{TRUE}.}
+Default is \code{TRUE}, as that is what ROSE does.}
 }
 \value{
 A GRanges object with an added \code{rank_signal} column containing the
