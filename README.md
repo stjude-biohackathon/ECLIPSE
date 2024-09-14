@@ -12,6 +12,7 @@ This project was conceptualized for and initially developed during the [St. Jude
 - Nicolas Peterson
 - Kelly McCastlain
 - Jacqueline Myers
+- Avery Bradley
 
 It even snagged a prize for "Most Technically Impressive" project.
 
