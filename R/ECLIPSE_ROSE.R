@@ -206,12 +206,106 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 }
 
 
+#' Classify enhancers based on signal thresholds
+#'
+#' Classifies enhancers as super-enhancers or regular enhancers based on a ranking signal and 
+#' a specified thresholding method. 
+#' Optionally applies user-transformations to the signal before classification, which is highly recommended
+#' to ameliorate the effects of outliers on the classification.
+#'
+#' @param regions A GRanges object containing `rank_signal` and optionally other metadata.
+#' @param transformation A function to apply to the ranking signal before threshold determination. 
+#'   Default is `NULL`.
+#' @param drop.zeros Logical indicating whether to drop regions with zero signal. 
+#'   Default is `FALSE`.
+#' @param thresh.method Character specifying the method to determine the signal threshold. 
+#'   Must be one of "ROSE", "first", "curvature", or "arbitrary".
+#'   Default is "ROSE".
+#' @param first.threshold Numeric value for the fraction of steepest slope when using the "first" threshold method. 
+#'   Default is 0.5.
+#' @param arbitrary.threshold Numeric value for the arbitrary threshold if the "arbitrary" method is selected. 
+#'   Default is 0.4, which is a reasonable setting when a cumulative proportion of signal transformation is applied.
+#'
+#' @return A GRanges object with a new `super` logical column indicating whether the enhancer is classified as a super-enhancer.
+#'   Any transformations applied, the thresholding method used, the threshold, and the number of dropped regions if 
+#'   `drop.zeros = TRUE` are added to the metadata of the GRanges object.
+#' 
+#' @author Jared Andrews
+#' 
+#' @importFrom GRanges metadata NROW
+#' @importFrom KneeArrower findCutoff
+#'
+#' @examples
+#' regions <- GRanges(seqnames = "chr1", ranges = IRanges(1000, 2000))
+#' regions$rank_signal <- rnorm(length(regions))
+#' classified_regions <- classify_enhancers(regions, thresh.method = "ROSE")
 classify_enhancers <- function(regions,
-                               adjustment = NULL,
+                               transformation = NULL,
                                drop.zeros = FALSE,
-                               remove.top = 0,
                                thresh.method = "ROSE",
                                first.threshold = 0.5,
-                               cumal.prop.threshold = 0.5) {
+                               arbitrary.threshold = 0.4) {
+    if (is.null(regions$rank_signal)) {
+        stop("regions must contain ranking signal, run 'add_signal_rank'")
+    }
 
+    # transformation must be a function if provided
+    if (!is.null(transformation) && !is.function(transformation)) {
+        stop("transformation must be a function")
+    }
+
+    if (!thresh.method %in% c("ROSE", "first", "curvature", "arbitrary")) {
+        stop("thresh.method must be one of 'ROSE', 'first', 'curvature', or 'arbitrary'")
+    }
+
+    metadata(regions)$threshold_method <- thresh.method
+
+    if (drop.zeros) {
+        num_no_sig_regions <- NROW(regions[regions$rank_signal == 0])
+        message(paste("Dropped", num_no_sig_regions, "regions due to no signal"))
+        metadata(regions)$dropped_zero_count <- num_no_sig_regions
+        regions <- regions[regions$rank_signal > 0]
+        regions$region_rank <- seq_len(NROW(regions))
+    }
+
+    # Keep track of whether to use transformed signal.
+    use_transformed <- FALSE
+    if (!is.null(transformation)) {
+        message("Applying provided transformation to signal prior to determining cutoff")
+        metadata(regions)$transformation <- transformation
+        regions$transformed_signal <- transformation(regions$rank_signal)
+        use_transformed <- TRUE
+    }
+
+    rankby_signal <- ifelse(use_transformed, regions$transformed_signal, regions$rank_signal)
+
+    # Use y-axis position for threshold, i.e. the signal value rather than rank
+    if (thresh.method == "ROSE") {
+        cutoff_options <- calculate_cutoff(rankby_signal)
+        cutpoint <- cutoff_options$absolute
+    } else if (thresh.method == "first") {
+        cutpoint <- findCutoff(
+            rank(rankby_signal),
+            rankby_signal,
+            method = "first",
+            frac.of.steepest.slope = first.threshold
+        )
+        cutpoint <- cutpoint$y
+    } else if (thresh.method == "curvature") {
+        cutpoint <- findCutoff(rank(rankby_signal),
+            rankby_signal,
+            method = "curvature"
+        )
+        cutpoint <- cutpoint$y
+    } else if (thresh.method == "arbitrary") {
+        cutpoint <- arbitrary.threshold
+    }
+
+    metadata(regions)$threshold <- cutpoint
+    message(paste("Using", cutpoint, "as cutoff for SE classification"))
+
+    regions$super <- rankby_signal > cutpoint
+    message(paste(sum(regions$super), "super enhancers called"))
+
+    regions
 }
