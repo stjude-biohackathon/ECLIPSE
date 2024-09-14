@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img src="inst/logo/ECLIPSE_Hex.png" alt="ECLIPSE" height="200">
+    <img src="inst/logo/ECLIPSE_Hex.png" alt="ECLIPSE" height="330">
 </p>
 
 ---
