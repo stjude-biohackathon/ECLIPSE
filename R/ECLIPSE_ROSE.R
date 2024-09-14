@@ -208,8 +208,8 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 
 #' Classify enhancers based on signal thresholds
 #'
-#' Classifies enhancers as super-enhancers or regular enhancers based on a ranking signal and 
-#' a specified thresholding method. 
+#' Classifies enhancers as super enhancers or typical enhancers based on a ranking signal and 
+#' a specified thresholding method.
 #' Optionally applies user-transformations to the signal before classification, which is highly recommended
 #' to ameliorate the effects of outliers on the classification.
 #'
@@ -226,13 +226,13 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 #' @param arbitrary.threshold Numeric value for the arbitrary threshold if the "arbitrary" method is selected. 
 #'   Default is 0.4, which is a reasonable setting when a cumulative proportion of signal transformation is applied.
 #'
-#' @return A GRanges object with a new `super` logical column indicating whether the enhancer is classified as a super-enhancer.
+#' @return A GRanges object with a new `super` logical column indicating whether the enhancer is classified as a super enhancer.
 #'   Any transformations applied, the thresholding method used, the threshold, and the number of dropped regions if 
 #'   `drop.zeros = TRUE` are added to the metadata of the GRanges object.
 #' 
 #' @author Jared Andrews
 #' 
-#' @importFrom GRanges metadata NROW
+#' @importFrom S4Vectors metadata
 #' @importFrom KneeArrower findCutoff
 #'
 #' @examples
