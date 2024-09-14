@@ -2,6 +2,7 @@
 
 export(add_region_signal)
 export(add_signal_rank)
+export(classify_enhancers)
 export(extend_reads)
 export(fetch_tss)
 export(plot_enhancer_curve)

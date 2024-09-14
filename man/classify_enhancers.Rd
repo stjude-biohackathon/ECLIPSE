@@ -27,6 +27,7 @@ Must be one of "ROSE", "first", "curvature", or "arbitrary".
 Default is "ROSE".}
 
 \item{first.threshold}{Numeric value for the fraction of steepest slope when using the "first" threshold method.
+Higher values will result in fewer SEs called.
 Default is 0.5.}
 
 \item{arbitrary.threshold}{Numeric value for the arbitrary threshold if the "arbitrary" method is selected.
