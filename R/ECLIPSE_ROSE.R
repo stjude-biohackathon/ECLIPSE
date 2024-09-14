@@ -171,7 +171,7 @@ add_region_signal <- function(sample.bam,
 #'
 #' @return A GRanges object with an added `rank_signal` column containing the
 #'   computed `rank_signal` column in its metadata columns, sorted by said column.
-#'   Adds a `region_rank` column as well.
+#'   Adds a `region_rank` column as well. Adds a `control_subtracted` element to the `metadata`.
 #'
 #' @export
 #'
@@ -191,8 +191,10 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 
     rank_sig <- regions$sample_signal
 
+    metadata(regions)$control_subtracted <- FALSE
     if (!is.null(regions$control_signal)) {
         rank_sig <- rank_sig - regions$control_signal
+        metadata(regions)$control_subtracted <- TRUE
     }
 
     if (negative.to.zero) {
@@ -227,6 +229,7 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 #'   Default is 0.4, which is a reasonable setting when a cumulative proportion of signal transformation is applied.
 #'
 #' @return A GRanges object with a new `super` logical column indicating whether the enhancer is classified as a super enhancer.
+#'   A `rankby_signal` column is added as the final signal values used for ranking (post-transformation, if applied).
 #'   Any transformations applied, the thresholding method used, the threshold, and the number of dropped regions if 
 #'   `drop.zeros = TRUE` are added to the metadata of the GRanges object.
 #' 
@@ -277,7 +280,7 @@ classify_enhancers <- function(regions,
         use_transformed <- TRUE
     }
 
-    rankby_signal <- ifelse(use_transformed, regions$transformed_signal, regions$rank_signal)
+    regions$rankby_signal <- ifelse(use_transformed, regions$transformed_signal, regions$rank_signal)
 
     # Use y-axis position for threshold, i.e. the signal value rather than rank
     if (thresh.method == "ROSE") {

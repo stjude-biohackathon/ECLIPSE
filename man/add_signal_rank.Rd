@@ -15,7 +15,7 @@ Default is \code{TRUE}, as that is what ROSE does.}
 \value{
 A GRanges object with an added \code{rank_signal} column containing the
 computed \code{rank_signal} column in its metadata columns, sorted by said column.
-Adds a \code{region_rank} column as well.
+Adds a \code{region_rank} column as well. Adds a \code{control_subtracted} element to the \code{metadata}.
 }
 \description{
 Computes the ranking signal for the given genomic regions by
