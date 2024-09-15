@@ -24,11 +24,12 @@ run_rose(
 )
 }
 \arguments{
-\item{sample.bam}{A character string or `BamFile`` object representing the sample BAM file.}
+\item{sample.bam}{A character string or \code{BamFile} object representing the sample BAM file.}
 
-\item{peaks}{A character string or `GRanges`` object representing the peaks.}
+\item{peaks}{A character string or \code{GRanges} object representing the peaks.}
 
-\item{control.bam}{A character string or \verb{BamFile`` object representing the control BAM file. Default is }NULL`.}
+\item{control.bam}{A character string or \code{BamFile} object representing the control BAM file.
+Default is \code{NULL}.}
 
 \item{stitch.distance}{Numeric value for the distance within which peaks are stitched together.
 Default is \code{12500}.}
@@ -56,19 +57,19 @@ Default is "ROSE".}
 Default is \code{NULL}.}
 
 \item{floor}{Numeric value representing the minimum coverage threshold to count.
-Default is \code{1}.}
+Default is 1.}
 
 \item{read.ext}{Numeric value for extending reads downstream.
-Default is \code{200}.}
+Default is 200.}
 
 \item{drop.zeros}{Logical indicating whether to drop regions with zero signal.
 Default is \code{FALSE}.}
 
 \item{first.threshold}{Numeric value for the fraction of steepest slope when using the "first" threshold method.
-Default is \code{0.5}.}
+Default is 0.5.}
 
 \item{arbitrary.threshold}{Numeric value for the arbitrary threshold if the "arbitrary" method is selected.
-Default is \code{0.4}.}
+Default is 0.4.}
 }
 \value{
 A GRanges object containing the classified super-enhancers and associated metadata.

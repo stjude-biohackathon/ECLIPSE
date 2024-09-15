@@ -345,9 +345,9 @@ classify_enhancers <- function(regions,
 #' - The "arbitrary" method allows for the user to specify a fixed threshold, useful for transformations
 #'   that result in a consistent curve shape with a known maximum, like cumulative proportion of signal.
 #'
-#' @param sample.bam A character string or `BamFile`` object representing the sample BAM file.
-#' @param peaks A character string or `GRanges`` object representing the peaks.
-#' @param control.bam A character string or `BamFile`` object representing the control BAM file.
+#' @param sample.bam A character string or `BamFile` object representing the sample BAM file.
+#' @param peaks A character string or `GRanges` object representing the peaks.
+#' @param control.bam A character string or `BamFile` object representing the control BAM file.
 #'   Default is `NULL`.
 #' @param stitch.distance Numeric value for the distance within which peaks are stitched together.
 #'   Default is `12500`.
@@ -367,15 +367,15 @@ classify_enhancers <- function(regions,
 #' @param transformation A function to apply to the ranking signal before threshold determination.
 #'   Default is `NULL`.
 #' @param floor Numeric value representing the minimum coverage threshold to count.
-#'  Default is `1`.
+#'  Default is 1.
 #' @param read.ext Numeric value for extending reads downstream.
-#'   Default is `200`.
+#'   Default is 200.
 #' @param drop.zeros Logical indicating whether to drop regions with zero signal.
 #'   Default is `FALSE`.
 #' @param first.threshold Numeric value for the fraction of steepest slope when using the "first" threshold method.
-#'   Default is `0.5`.
+#'   Default is 0.5.
 #' @param arbitrary.threshold Numeric value for the arbitrary threshold if the "arbitrary" method is selected.
-#'   Default is `0.4`.
+#'   Default is 0.4.
 #'
 #' @return A GRanges object containing the classified super-enhancers and associated metadata.
 #'

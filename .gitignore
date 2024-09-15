@@ -4,3 +4,4 @@
 *.sqlite
 INTERNAL_*
 *.Rproj
+*.html
