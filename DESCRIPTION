@@ -18,7 +18,7 @@ Description: ECLIPSE provides a performant implementation of the rank ordering o
     It also contains visualization functions to generate high-quality plots of specific loci alongside arbitrary user-provided data.
 URL: https://github.com/stjude-biohackathon/ECLIPSE
 BugReports: https://github.com/stjude-biohackathon/ECLIPSE/issues
-License: MIT + file LICENSE
+License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
