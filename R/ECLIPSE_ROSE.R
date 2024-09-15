@@ -315,3 +315,123 @@ classify_enhancers <- function(regions,
 
     regions
 }
+
+
+#' Run ROSE (Rank Ordering of Super-Enhancers)
+#'
+#' This function performs the ROSE for identifying super-enhancers by stitching
+#' together peaks, calculating the signal in the regions, ranking the regions by signal,
+#' and classifying them as super-enhancers.
+#' 
+#' @details
+#' This function allows for near identical functionality to the original ROSE software,
+#' but also provides a number of additional options to minimize the impact of signal outliers
+#' on the classification threshold.
+#' In particular, the `transformation` argument allows for
+#' the application of a function to the ranking signal before threshold determination.
+#' This is highly recommended to prevent outliers from skewing the threshold.
+#'
+#' The `thresh.method` argument allows for the selection of the method to determine the threshold.
+#' - The "ROSE" method is the default and uses a sliding diagonal line to determine the cutoff.
+#' - The "first" method uses a first derivative to determine the point where the slope is a given fraction of the maximum. 
+#'   The `first.threshold` argument controls this fraction.
+#' - The "curvature" method finds the point at which the circle tanget to the curve has the smallest radius.
+#' - The "arbitrary" method allows for the user to specify a fixed threshold, useful for transformations
+#'   that result in a consistent curve shape with a known maximum, like cumulative proportion of signal.
+#'
+#' @param sample.bam A character string or `BamFile`` object representing the sample BAM file.
+#' @param peaks A character string or `GRanges`` object representing the peaks.
+#' @param control.bam A character string or `BamFile`` object representing the control BAM file.
+#'   Default is `NULL`.
+#' @param stitch.distance Numeric value for the distance within which peaks are stitched together.
+#'   Default is `12500`.
+#' @param txdb Not used. Functionality not implemented.
+#'   Default is `NULL`.
+#' @param org.db Not used. Functionality not implemented.
+#'   Default is `NULL`.
+#' @param drop.y Logical indicating whether to drop peaks on chromosome Y.
+#'   Default is `TRUE`.
+#' @param max.genes.overlap Not used. Functionality not implemented.
+#'   Default is 2.
+#' @param negative.to.zero Logical indicating whether to set negative ranking signals to zero.
+#'   Default is `TRUE`.
+#' @param thresh.method Character string specifying the method to determine the signal threshold.
+#'   Must be one of "ROSE", "first", "curvature", or "arbitrary".
+#' Default is "ROSE".
+#' @param transformation A function to apply to the ranking signal before threshold determination.
+#'   Default is `NULL`.
+#' @param floor Numeric value representing the minimum coverage threshold to count.
+#'  Default is `1`.
+#' @param read.ext Numeric value for extending reads downstream.
+#'   Default is `200`.
+#' @param drop.zeros Logical indicating whether to drop regions with zero signal.
+#'   Default is `FALSE`.
+#' @param first.threshold Numeric value for the fraction of steepest slope when using the "first" threshold method.
+#'   Default is `0.5`.
+#' @param arbitrary.threshold Numeric value for the arbitrary threshold if the "arbitrary" method is selected.
+#'   Default is `0.4`.
+#'
+#' @return A GRanges object containing the classified super-enhancers and associated metadata.
+#' 
+#' @author Jared Andrews
+#' 
+#' @importFrom Rsamtools BamFile
+#' @importFrom genomation readBed
+#' @importFrom GenomicRanges reduce seqnames
+#'
+#' @export
+#'
+#' @examples
+#' sample.bam <- "path/to/sample.bam"
+#' peaks <- "path/to/peaks.bed"
+#' result <- run_rose(sample.bam, peaks)
+run_rose <- function(
+    sample.bam,
+    peaks,
+    control.bam = NULL,
+    stitch.distance = 12500,
+    txdb = NULL, # Not used/functionality not implemented
+    org.db = NULL, # Not used/functionality not implemented
+    drop.y = TRUE,
+    max.genes.overlap = 2, # Not used/functionality not implemented
+    negative.to.zero = TRUE,
+    thresh.method = "ROSE",
+    transformation = NULL,
+    floor = 1,
+    read.ext = 200,
+    drop.zeros = FALSE,
+    first.threshold = 0.5,
+    arbitrary.threshold = 0.4) {
+    if (is.character(sample.bam)) {
+        sample.bam <- BamFile(sample.bam)
+    }
+
+    if (!is.null(control.bam) && is.character(control.bam)) {
+        control.bam <- BamFile(control.bam)
+    }
+
+    if (is.character(peaks)) {
+        peaks <- readBed(peaks)
+    }
+
+    peaks_stitched <- reduce(peaks, min.gapwidth = stitch.distance)
+
+    # Drop chrY as ROSE does
+    if (drop.y) {
+        peaks_stitched <- peaks_stitched[seqnames(peaks_stitched) != "chrY"]
+    }
+
+    message("Getting region signal")
+    regions <- add_region_signal(sample.bam, peaks_stitched, control.bam = control.bam, floor = floor, read.ext = read.ext)
+
+    message("Ranking regions")
+    regions <- add_signal_rank(regions, negative.to.zero = negative.to.zero)
+
+    message("Classifying enhancers")
+    regions <- classify_enhancers(regions,
+        transformation = transformation, drop.zeros = drop.zeros,
+        thresh.method = thresh.method, first.threshold = first.threshold, arbitrary.threshold = arbitrary.threshold
+    )
+
+    regions
+}
