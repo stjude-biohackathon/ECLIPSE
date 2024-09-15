@@ -34,9 +34,25 @@ devtools::install_github("stjude-biohackathon/ECLIPSE")
 
 ## Usage
 
-Docs to be added.
+Given a BAM file and a BED file of peaks, ROSE can be run with the `run_rose` function.
+Optionally, a control BAM file for input or IgG from the same sample can be provided.
+
+```r
+library(ECLIPSE)
+
+
+```
+
+The output is a `GRanges` object containing all putative enhancers with their super enhancer designation in the `super` metadata column.
+
+
 
 ## Development Roadmap
 
-To be added.
+- Add missing ROSE functionality.
+  - TSS exclusion from stitching process.
+  - Overlap of TSS of 3 or more unique genes canceling stiching for a putative enhancer. 
+    - And ability to disable this process.
+  - Enhancer-gene annotations (within 50 kb by default for ROSE).
+    - Ability to limit to expressed genes.
 

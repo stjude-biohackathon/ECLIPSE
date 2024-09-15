@@ -33,3 +33,27 @@ Imports:
     rtracklayer,
     S4Vectors,
     stats
+Suggests:
+    BiocStyle,
+    knitr,
+    testthat (>= 3.0.0),
+    rmarkdown,
+    ENCODExplorer
+Depends:
+    R (>= 4.4.0)
+biocViews: 
+    Software,
+    Sequencing,
+    Visualization,
+    MultipleComparison,
+    Normalization,
+    DifferentialPeakCalling,
+    GeneRegulation,
+    HistoneModification,
+    PeakDetection,
+    Epigenetics,
+    ShinyApps,
+    Classification
+LazyData: false
+Config/testthat/edition: 3
+VignetteBuilder: knitr
