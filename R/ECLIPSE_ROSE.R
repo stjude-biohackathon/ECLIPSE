@@ -86,7 +86,7 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #'
 #' @importFrom Rsamtools BamFile idxstatsBam
 #' @importFrom rtracklayer import
-#' @importFrom GenomicRanges granges
+#' @importFrom GenomicRanges granges trim
 #' @importFrom HelloRanges do_bedtools_coverage
 #' @importFrom IRanges IRanges
 #' @importFrom genomation readBed
@@ -103,22 +103,23 @@ add_region_signal <- function(sample.bam,
                               floor = 1,
                               read.ext = 200) {
     if (is.character(sample.bam)) {
-        samp_bam <- BamFile(sample.bam)
+        sample.bam <- BamFile(sample.bam)
     }
 
     if (is.character(control.bam)) {
-        ctrl_bam <- BamFile(control.bam)
+        control.bam <- BamFile(control.bam)
     }
 
     if (is.character(regions)) {
         regions <- readBed(file = regions)
     }
 
-    samp_stat <- idxstatsBam(samp_bam)
+    samp_stat <- idxstatsBam(sample.bam)
     samp_total <- sum(samp_stat$mapped)
     samp_mmr <- samp_total / 1000000
 
-    samp_reads <- granges(import(samp_mmr))
+    samp_reads <- granges(import(sample.bam))
+    samp_reads <- trim(samp_reads)
 
     if (read.ext > 0) {
         samp_reads <- extend_reads(samp_reads, downstream = read.ext)
@@ -136,11 +137,12 @@ add_region_signal <- function(sample.bam,
 
     ctrl_sig <- NULL
     if (!is.null(control.bam)) {
-        ctrl_stat <- idxstatsBam(ctrl_bam)
+        ctrl_stat <- idxstatsBam(control.bam)
         ctrl_total <- sum(ctrl_stat$mapped)
         ctrl_mmr <- ctrl_total / 1000000
 
-        ctrl_reads <- granges(import(ctrl_bam))
+        ctrl_reads <- granges(import(control.bam))
+        ctrl_reads <- trim(ctrl_reads)
         if (read.ext > 0) {
             ctrl_reads <- extend_reads(ctrl_reads, downstream = read.ext)
         }
@@ -283,23 +285,27 @@ classify_enhancers <- function(regions,
         use_transformed <- TRUE
     }
 
-    regions$rankby_signal <- ifelse(use_transformed, regions$transformed_signal, regions$rank_signal)
+    if (use_transformed) {
+        regions$rankby_signal <- regions$transformed_signal
+    } else {
+        regions$rankby_signal <- regions$rank_signal
+    }
 
     # Use y-axis position for threshold, i.e. the signal value rather than rank
     if (thresh.method == "ROSE") {
-        cutoff_options <- calculate_cutoff(rankby_signal)
+        cutoff_options <- calculate_cutoff(regions$rankby_signal, drawPlot = FALSE)
         cutpoint <- cutoff_options$absolute
     } else if (thresh.method == "first") {
         cutpoint <- findCutoff(
-            rank(rankby_signal),
-            rankby_signal,
+            rank(regions$rankby_signal),
+            regions$rankby_signal,
             method = "first",
             frac.of.steepest.slope = first.threshold
         )
         cutpoint <- cutpoint$y
     } else if (thresh.method == "curvature") {
-        cutpoint <- findCutoff(rank(rankby_signal),
-            rankby_signal,
+        cutpoint <- findCutoff(rank(regions$rankby_signal),
+            regions$rankby_signal,
             method = "curvature"
         )
         cutpoint <- cutpoint$y
@@ -310,7 +316,7 @@ classify_enhancers <- function(regions,
     metadata(regions)$threshold <- cutpoint
     message(paste("Using", cutpoint, "as cutoff for SE classification"))
 
-    regions$super <- rankby_signal > cutpoint
+    regions$super <- regions$rankby_signal > cutpoint
     message(paste(sum(regions$super), "super enhancers called"))
 
     regions
@@ -322,7 +328,7 @@ classify_enhancers <- function(regions,
 #' This function performs the ROSE for identifying super-enhancers by stitching
 #' together peaks, calculating the signal in the regions, ranking the regions by signal,
 #' and classifying them as super-enhancers.
-#' 
+#'
 #' @details
 #' This function allows for near identical functionality to the original ROSE software,
 #' but also provides a number of additional options to minimize the impact of signal outliers
@@ -333,7 +339,7 @@ classify_enhancers <- function(regions,
 #'
 #' The `thresh.method` argument allows for the selection of the method to determine the threshold.
 #' - The "ROSE" method is the default and uses a sliding diagonal line to determine the cutoff.
-#' - The "first" method uses a first derivative to determine the point where the slope is a given fraction of the maximum. 
+#' - The "first" method uses a first derivative to determine the point where the slope is a given fraction of the maximum.
 #'   The `first.threshold` argument controls this fraction.
 #' - The "curvature" method finds the point at which the circle tanget to the curve has the smallest radius.
 #' - The "arbitrary" method allows for the user to specify a fixed threshold, useful for transformations
@@ -372,12 +378,12 @@ classify_enhancers <- function(regions,
 #'   Default is `0.4`.
 #'
 #' @return A GRanges object containing the classified super-enhancers and associated metadata.
-#' 
+#'
 #' @author Jared Andrews
-#' 
+#'
 #' @importFrom Rsamtools BamFile
 #' @importFrom genomation readBed
-#' @importFrom GenomicRanges reduce seqnames
+#' @importFrom GenomicRanges reduce seqnames trim
 #'
 #' @export
 #'
@@ -412,6 +418,7 @@ run_rose <- function(
 
     if (is.character(peaks)) {
         peaks <- readBed(peaks)
+        peaks <- trim(peaks)
     }
 
     peaks_stitched <- reduce(peaks, min.gapwidth = stitch.distance)
@@ -421,7 +428,7 @@ run_rose <- function(
         peaks_stitched <- peaks_stitched[seqnames(peaks_stitched) != "chrY"]
     }
 
-    message("Getting region signal")
+    message("Calculating normalized region signal")
     regions <- add_region_signal(sample.bam, peaks_stitched, control.bam = control.bam, floor = floor, read.ext = read.ext)
 
     message("Ranking regions")
