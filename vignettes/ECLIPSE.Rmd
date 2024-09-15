@@ -1,0 +1,95 @@
+---
+title: "ECLIPSE Quick Start"
+author: 
+- name: "Jared Andrews"
+  email: jared.andrews07@gmail.com
+  affiliation: St. Jude Children's Research Hospital, Memphis, TN
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('ECLIPSE')`"
+output: 
+  BiocStyle::html_document:
+    code_folding: show
+    toc: true
+    toc_depth: 3
+    toc_float: true	 
+vignette: >
+  %\VignetteIndexEntry{ECLIPSE Quick Start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+library(BiocStyle)
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+**ECLIPSE** (**E**nhancer **C**alling and **L**inking with **I**ntegrated **P**rofiling and **S**tructure **E**valuation) provides a performant 
+implementation of the [rank ordering of super enhancers (ROSE)](http://younglab.wi.mit.edu/super_enhancer_code.html) method for identifying super enhancers.
+It provides options to increase the robustness of ROSE via signal transformations prior to thresholding and additional thresholding approaches.
+It also increases flexibility by exposing parameters hidden in the original implementation.
+ECLIPSE additionally contains novel functionality to identify sub-structural changes within enhancer regions between groups via sliding window and binning approaches.
+It also contains visualization functions to generate high-quality plots of specific loci alongside arbitrary user-provided data.
+
+## Installation
+
+**ECLIPSE** is currently available on Github and can be installed as follows:
+
+```{r, eval = FALSE}
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+devtools::install_github("stjude-biohackathon/ECLIPSE")
+```
+
+## Usage
+
+Given a BAM file and a BED file of peaks, ROSE can be run with the `run_rose` function.
+Optionally, a control BAM file for input or IgG from the same sample can be provided.
+
+Alternatively, `bamFile` objects and a `GRanges` object for the peaks can be provided.
+
+The output is a `GRanges` object containing all putative enhancers with their super enhancer designation in the `super` metadata column.
+
+```{r}
+library(ECLIPSE)
+
+sample_bam <- "/path/to/bam.bam"
+control_bam <- "/path/to/control.bam"
+peaks <- "/path/to/peaks.bed"
+
+putative_enhancers <- run_rose(sample.bam = sample_bam, control.bam = control_bam, peaks = peaks)
+
+putative_enhancers
+```
+
+## Comparison to Original ROSE Implementation
+
+By default, `run_rose` is an attempt to match the results from the original ROSE implementation as closely as possible.
+
+For comparison's sake, here are the enhancer rankings and plots from the original implementation:
+
+```{r, fig.cap="Screenshot of the `CRISPRball` application, when launched as a server where users can directly upload MAGeCK RRA or MLE output. Information on the format of the expected data are provided in the following sections.", echo=FALSE}
+knitr::include_graphics("original_rose.png")
+```
+
+And here is the plot returned from ECLIPSE.
+
+```{r}
+plot_enhancer_curve(putative_enhancers)
+```
+
+Notably, the number of super-enhancers identified are not a perfect match, likely due to very slight differences in the coverage calculations.
+
+## SessionInfo
+
+<details>
+
+<summary>Click to expand</summary>
+
+```{r, echo = FALSE}
+sessionInfo()
+```
+
+</details>
