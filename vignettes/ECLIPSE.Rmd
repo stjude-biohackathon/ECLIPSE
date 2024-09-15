@@ -52,8 +52,6 @@ Alternatively, `bamFile` objects and a `GRanges` object for the peaks can be pro
 The output is a `GRanges` object containing all putative enhancers with their super enhancer designation in the `super` metadata column.
 
 ```{r, eval = FALSE}
-library(ECLIPSE)
-
 sample_bam <- "/path/to/bam.bam"
 control_bam <- "/path/to/control.bam"
 peaks <- "/path/to/peaks.bed"
