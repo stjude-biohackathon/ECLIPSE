@@ -5,13 +5,12 @@ author:
   email: jared.andrews07@gmail.com
   affiliation: St. Jude Children's Research Hospital, Memphis, TN
 date: "`r BiocStyle::doc_date()`"
-package: "`r BiocStyle::pkg_ver('ECLIPSE')`"
 output: 
   BiocStyle::html_document:
     code_folding: show
     toc: true
     toc_depth: 3
-    toc_float: true	 
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{ECLIPSE Quick Start}
   %\VignetteEngine{knitr::rmarkdown}
@@ -52,7 +51,7 @@ Alternatively, `bamFile` objects and a `GRanges` object for the peaks can be pro
 
 The output is a `GRanges` object containing all putative enhancers with their super enhancer designation in the `super` metadata column.
 
-```{r}
+```{r, eval = FALSE}
 library(ECLIPSE)
 
 sample_bam <- "/path/to/bam.bam"
@@ -66,21 +65,30 @@ putative_enhancers
 
 ## Comparison to Original ROSE Implementation
 
-By default, `run_rose` is an attempt to match the results from the original ROSE implementation as closely as possible.
+With default parameters, `run_rose` is an attempt to match the results from the original ROSE implementation as closely as possible.
 
-For comparison's sake, here are the enhancer rankings and plots from the original implementation:
+For comparison's sake, here is the enhancer ranking curve from the original ROSE implementation for [H3K27ac Mint-ChIP-seq from
+naive B cells](https://www.encodeproject.org/experiments/ENCSR660EVU/) as provided by ENCODE:
 
-```{r, fig.cap="Screenshot of the `CRISPRball` application, when launched as a server where users can directly upload MAGeCK RRA or MLE output. Information on the format of the expected data are provided in the following sections.", echo=FALSE}
-knitr::include_graphics("original_rose.png")
+```{r, fig.cap="Enhancer rank plot output by original ROSE implementation.", echo=FALSE}
+knitr::include_graphics("ENCFF590DFY_Plot_points.png")
 ```
 
-And here is the plot returned from ECLIPSE.
+These results are using no TSS exclusion to compare the underlying classification approach as closely as possible.
+
+Here is the enhancer ranking curve returned from ECLIPSE after `run_rose` on the same data:
 
 ```{r}
-plot_enhancer_curve(putative_enhancers)
+library(ECLIPSE)
+data("ENCSR660EVU_putative_enhancers", package = "ECLIPSE")
+plot_enhancer_curve(ENCSR660EVU_putative_enhancers)
 ```
 
-Notably, the number of super-enhancers identified are not a perfect match, likely due to very slight differences in the coverage calculations.
+Notably, the number of super-enhancers identified are not a perfect match due to very slight differences in the coverage calculations.
+However, all super-enhancers identified in the original implementation are also called by ECLIPSE.
+Determination of the root cause of the minor discrepancy is ongoing.
+
+
 
 ## SessionInfo
 
