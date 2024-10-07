@@ -9,6 +9,7 @@ run_rose(
   peaks,
   control.bam = NULL,
   stitch.distance = 12500,
+  exclude.tss.distance = 0,
   txdb = NULL,
   org.db = NULL,
   drop.y = TRUE,
@@ -32,7 +33,10 @@ run_rose(
 Default is \code{NULL}.}
 
 \item{stitch.distance}{Numeric value for the distance within which peaks are stitched together.
-Default is \code{12500}.}
+Default is 12500.}
+
+\item{exclude.tss.distance}{Numeric value for distance from TSS to exclude peaks prior to stitching.
+Default is 0, meaning peaks overlapping TSS will not be excluded from stitching.}
 
 \item{txdb}{Not used. Functionality not implemented.
 Default is \code{NULL}.}
@@ -72,7 +76,7 @@ Default is 0.5.}
 Default is 0.4.}
 }
 \value{
-A GRanges object containing the classified super-enhancers and associated metadata.
+A \code{GRanges} object containing the classified super-enhancers and associated metadata.
 }
 \description{
 This function performs the ROSE for identifying super-enhancers by stitching

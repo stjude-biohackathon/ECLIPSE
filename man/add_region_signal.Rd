@@ -21,6 +21,7 @@ add_region_signal(
 Default is \code{NULL}.}
 
 \item{floor}{Numeric value for the minimum coverage threshold to count for region.
+Coverage must be greater than this value to be counted in the signal.
 Default is 1.}
 
 \item{read.ext}{Numeric value for extending reads downstream. Default is 200.}

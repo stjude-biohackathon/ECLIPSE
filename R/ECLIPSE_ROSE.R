@@ -75,6 +75,7 @@ extend_reads <- function(regions, upstream = 0, downstream = 0) {
 #' @param control.bam Character or BamFile object representing the control BAM file.
 #'   Default is `NULL`.
 #' @param floor Numeric value for the minimum coverage threshold to count for region.
+#'   Coverage must be greater than this value to be counted in the signal.
 #'   Default is 1.
 #' @param read.ext Numeric value for extending reads downstream. Default is 200.
 #'
@@ -350,7 +351,9 @@ classify_enhancers <- function(regions,
 #' @param control.bam A character string or `BamFile` object representing the control BAM file.
 #'   Default is `NULL`.
 #' @param stitch.distance Numeric value for the distance within which peaks are stitched together.
-#'   Default is `12500`.
+#'   Default is 12500.
+#' @param exclude.tss.distance Numeric value for distance from TSS to exclude peaks prior to stitching.
+#'   Default is 0, meaning peaks overlapping TSS will not be excluded from stitching.
 #' @param txdb Not used. Functionality not implemented.
 #'   Default is `NULL`.
 #' @param org.db Not used. Functionality not implemented.
@@ -377,7 +380,7 @@ classify_enhancers <- function(regions,
 #' @param arbitrary.threshold Numeric value for the arbitrary threshold if the "arbitrary" method is selected.
 #'   Default is 0.4.
 #'
-#' @return A GRanges object containing the classified super-enhancers and associated metadata.
+#' @return A `GRanges` object containing the classified super-enhancers and associated metadata.
 #'
 #' @author Jared Andrews
 #'
@@ -396,6 +399,7 @@ run_rose <- function(
     peaks,
     control.bam = NULL,
     stitch.distance = 12500,
+    exclude.tss.distance = 0,
     txdb = NULL, # Not used/functionality not implemented
     org.db = NULL, # Not used/functionality not implemented
     drop.y = TRUE,
