@@ -419,17 +419,17 @@ run_rose <- function(
 
     if(length(sample.bam$index) == 0 || !file.exists(sample.bam$index)) {
         message("Sample BAM index not found. Generating an index.")
-        indexBam(sample.bam)
+        sample.bam$index <- unname(indexBam(sample.bam))
     }
 
     if (!is.null(control.bam)) {
         if(is.character(control.bam)) {
         control.bam <- BamFile(control.bam)
-        }
+    }
 
         if(length(control.bam$index) == 0 || !file.exists(control.bam$index)) {
             message("Control BAM index not found. Generating an index.")
-            indexBam(control.bam)
+            control.bam$index <- unname(indexBam(control.bam))
         }
     }
 
