@@ -417,7 +417,7 @@ run_rose <- function(
         sample.bam <- BamFile(sample.bam)
     }
 
-    if(!file.exists(sample.bam$index)) {
+    if(length(sample.bam$index) == 0 || !file.exists(sample.bam$index)) {
         message("Sample BAM index not found. Generating an index.")
         indexBam(sample.bam)
     }
@@ -427,7 +427,7 @@ run_rose <- function(
         control.bam <- BamFile(control.bam)
         }
 
-        if(!file.exists(control.bam$index)) {
+        if(length(control.bam$index) == 0 || !file.exists(control.bam$index)) {
             message("Control BAM index not found. Generating an index.")
             indexBam(control.bam)
         }
