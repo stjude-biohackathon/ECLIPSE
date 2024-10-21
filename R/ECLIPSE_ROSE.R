@@ -384,7 +384,7 @@ classify_enhancers <- function(regions,
 #'
 #' @author Jared Andrews
 #'
-#' @importFrom Rsamtools BamFile
+#' @importFrom Rsamtools BamFile indexBam
 #' @importFrom genomation readBed
 #' @importFrom GenomicRanges reduce seqnames trim
 #'
@@ -412,12 +412,25 @@ run_rose <- function(
     drop.zeros = FALSE,
     first.threshold = 0.5,
     arbitrary.threshold = 0.4) {
+
     if (is.character(sample.bam)) {
         sample.bam <- BamFile(sample.bam)
     }
 
-    if (!is.null(control.bam) && is.character(control.bam)) {
+    if(!file.exists(sample.bam$index)) {
+        message("Sample BAM index not found. Generating an index.")
+        indexBam(sample.bam)
+    }
+
+    if (!is.null(control.bam)) {
+        if(is.character(control.bam)) {
         control.bam <- BamFile(control.bam)
+        }
+
+        if(!file.exists(control.bam$index)) {
+            message("Control BAM index not found. Generating an index.")
+            indexBam(control.bam)
+        }
     }
 
     if (is.character(peaks)) {
