@@ -416,6 +416,7 @@ run_rose <- function(
     if (is.character(sample.bam)) {
         sample.bam <- BamFile(sample.bam)
     }
+    message(paste0("Sample BAM file: ", sub(".*/(.*\\.bam)$", "\\1", sample.bam$path)))
 
     if(length(sample.bam$index) == 0 || !file.exists(sample.bam$index)) {
         message("Sample BAM index not found. Generating an index.")
@@ -425,7 +426,8 @@ run_rose <- function(
     if (!is.null(control.bam)) {
         if(is.character(control.bam)) {
         control.bam <- BamFile(control.bam)
-    }
+        }
+        message(paste0("Control BAM file: ", sub(".*/(.*\\.bam)$", "\\1", control.bam$path)))
 
         if(length(control.bam$index) == 0 || !file.exists(control.bam$index)) {
             message("Control BAM index not found. Generating an index.")
@@ -433,6 +435,7 @@ run_rose <- function(
         }
     }
 
+    message("Reading peaks")
     if (is.character(peaks)) {
         peaks <- readBed(peaks)
         peaks <- trim(peaks)
