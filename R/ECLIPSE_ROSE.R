@@ -384,7 +384,7 @@ classify_enhancers <- function(regions,
 #'
 #' @author Jared Andrews
 #'
-#' @importFrom Rsamtools BamFile
+#' @importFrom Rsamtools BamFile indexBam
 #' @importFrom genomation readBed
 #' @importFrom GenomicRanges reduce seqnames trim
 #'
@@ -412,14 +412,30 @@ run_rose <- function(
     drop.zeros = FALSE,
     first.threshold = 0.5,
     arbitrary.threshold = 0.4) {
+
     if (is.character(sample.bam)) {
         sample.bam <- BamFile(sample.bam)
     }
+    message(paste0("Sample BAM file: ", sub(".*/(.*\\.bam)$", "\\1", sample.bam$path)))
 
-    if (!is.null(control.bam) && is.character(control.bam)) {
-        control.bam <- BamFile(control.bam)
+    if(length(sample.bam$index) == 0 || !file.exists(sample.bam$index)) {
+        message("Sample BAM index not found. Generating an index.")
+        sample.bam$index <- unname(indexBam(sample.bam))
     }
 
+    if (!is.null(control.bam)) {
+        if(is.character(control.bam)) {
+        control.bam <- BamFile(control.bam)
+        }
+        message(paste0("Control BAM file: ", sub(".*/(.*\\.bam)$", "\\1", control.bam$path)))
+
+        if(length(control.bam$index) == 0 || !file.exists(control.bam$index)) {
+            message("Control BAM index not found. Generating an index.")
+            control.bam$index <- unname(indexBam(control.bam))
+        }
+    }
+
+    message("Reading peaks")
     if (is.character(peaks)) {
         peaks <- readBed(peaks)
         peaks <- trim(peaks)
