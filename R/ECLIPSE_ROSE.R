@@ -36,7 +36,7 @@ fetch_tss <- function(TxDb, expansion.distance = 0) {
 #' @return A GRanges object with extended regions.
 #'
 #' @export
-#' @importFrom GenomicRanges strand start end ranges
+#' @importFrom GenomicRanges strand start end 'ranges<-'
 #' @importFrom IRanges IRanges
 #'
 #' @author Jared Andrews
@@ -239,7 +239,7 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 #'
 #' @export
 #'
-#' @importFrom S4Vectors metadata
+#' @importFrom S4Vectors 'metadata<-'
 #' @importFrom KneeArrower findCutoff
 #'
 #' @author Jared Andrews
