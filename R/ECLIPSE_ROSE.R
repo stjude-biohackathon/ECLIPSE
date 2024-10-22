@@ -239,7 +239,7 @@ add_signal_rank <- function(regions, negative.to.zero = TRUE) {
 #'
 #' @export
 #'
-#' @importFrom S4Vectors metadata
+#' @importFrom S4Vectors 'metadata<-'
 #' @importFrom KneeArrower findCutoff
 #'
 #' @author Jared Andrews
