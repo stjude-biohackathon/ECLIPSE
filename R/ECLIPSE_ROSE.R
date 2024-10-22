@@ -36,7 +36,7 @@ fetch_tss <- function(TxDb, expansion.distance = 0) {
 #' @return A GRanges object with extended regions.
 #'
 #' @export
-#' @importFrom GenomicRanges strand start end ranges
+#' @importFrom GenomicRanges strand start end 'ranges<-'
 #' @importFrom IRanges IRanges
 #'
 #' @author Jared Andrews
